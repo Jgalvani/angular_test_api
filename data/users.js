@@ -6,7 +6,7 @@ exports.list = function (req, res) {
     db.getConnection(
         function (err, connection) {
             if (!err) {
-                connection.query("SELECT * FROM tests",
+                connection.query("SELECT * FROM users",
                     function (err, rows) {
                         if(!err) {
                             res.json(rows)
@@ -30,23 +30,30 @@ exports.add = function (req, res) {
                 items = [];
                 if (req.body !== undefined) {
                     for (var i = 0; i < req.body.length; i++) {
-                        items.push([req.body[i]['name'], req.body[i]['status']])
-                    }
-                    connection.query(`INSERT INTO tests
-                                    (name, status)
+                        items.push([
+                            req.body[i]['email'], 
+                            req.body[i]['password'],
+                            req.body[i]['firstname'],
+                            req.body[i]['lastname'],
+                            req.body[i]['drink']
+                        ])};
+                    connection.query(`INSERT INTO users
+                                    (email, password, firstname, lastname, drink)
                                 VALUES
                                     ?
                                 ON DUPLICATE KEY UPDATE
-                                name = VALUES(name),
-                                status = VALUES(status)`, [items],
+                                email = VALUES(email),
+                                password = VALUES(password),
+                                firstname = VALUES(firstname),
+                                lastname = VALUES(lastname)`, [items],
                         function (err, rows) {
                             if(!err) {
-                                res.json("Insert into table tests succeeded !");
+                                res.json("Insert into table users succeeded !")
                             } else {
                                 res.status(500).json({ success: false });
                                 console.error("[" + moment().format("YYYY-MM-DD HH:mm") + "]", err);
                             }
-                    });
+                        });
                 } else {
                     console.log('Request body is empty')
                 }
@@ -64,10 +71,10 @@ exports.del = function (req, res) {
             if (!err) {
                 if (req.body) {
 			        name = req.body['name'];
-                    connection.query(`DELETE FROM tests where name = ?`, [name],
+                    connection.query(`DELETE FROM users where email = ?`, [email],
                         function (err, rows) {
                             if(!err) {
-                                res.json("Insert into table tests succeeded !")
+                                res.json("Insert into table users succeeded !")
                             } else {
                                 res.status(500).json({ success: false });
                                 console.error("[" + moment().format("YYYY-MM-DD HH:mm") + "]", err);
